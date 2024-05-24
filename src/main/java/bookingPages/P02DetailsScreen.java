@@ -26,6 +26,7 @@ public class P02DetailsScreen extends PageBase {
             selectOptionByIndex(rooms_number_dropDown,numberOfRooms);
         }catch (Exception e){
             System.out.println("can't select rooms count");
+            selectOptionByIndex(rooms_number_dropDown,1);
         }
     }
     private void selectRoomType(String roomType){
