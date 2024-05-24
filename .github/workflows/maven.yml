@@ -1,0 +1,73 @@
+name: sumerge-Booking
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Email address to send the report to'
+        required: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compile and Build with Maven
+        run: mvn clean install -DskipTests
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' # Run on manual trigger or schedule
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Maven test and create extentReports directory
+        run: |
+          mvn clean verify -Dremote=true 
+          mkdir -p reports/extentReports
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Report
+          path: src/main/sureFireReport/emailable-report.html
+          retain-artifacts: false
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v2
+        with:
+          name: failure-screenshots
+          path: reports/screenshotsFailure
+
+      - name: CINotify Email
+        uses: cinotify/github-action@v1.4.0
+        with:
+          to: ${{ github.event.inputs.email }}
+          subject: "E2E Test Automation Report - Run ${{ github.run_number }}"
+          body: |
+            The E2E test automation run has completed. Check the attached report for details.
+          attachment: src/main/sureFireReport/emailable-report.html
