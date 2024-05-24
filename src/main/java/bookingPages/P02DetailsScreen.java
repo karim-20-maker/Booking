@@ -25,7 +25,7 @@ public class P02DetailsScreen extends PageBase {
         try{
             selectOptionByIndex(rooms_number_dropDown,numberOfRooms);
         }catch (Exception e){
-            System.out.println("only on  type available");
+            System.out.println("can't select rooms count");
         }
     }
     private void selectRoomType(String roomType){
@@ -45,7 +45,11 @@ public class P02DetailsScreen extends PageBase {
     public void reserveRoom(String bedSizeLargeOrSmall , int numberOfRooms){
         validateTolipDisplayedSuccessfully();
         selectNumberOfRooms(numberOfRooms);
-        selectRoomType(bedSizeLargeOrSmall);
+        try {
+            selectRoomType(bedSizeLargeOrSmall);
+        }catch (Exception e){
+            System.out.println("there is only on type available");
+        }
         clickOnElement(i_will_reserve_CTA);
     }
 }
