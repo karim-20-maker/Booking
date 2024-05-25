@@ -56,7 +56,8 @@ public class BaseTest {
                     options1.addArguments("--headless=new");
                     driver = new EdgeDriver(options1);
                 }else {
-                    driver = new ChromeDriver();
+                    driver = new EdgeDriver();
+                    
                 }
                 break;
             case "firefox":
